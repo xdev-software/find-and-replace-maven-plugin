@@ -120,7 +120,7 @@ public final class ProcessFilesTask
 	private static ListIterator<File> processDirectory(
 		final ListIterator<File> iterator,
 		final boolean isRecursive,
-		File file,
+		final File file,
 		final boolean processDirectoryNames,
 		final List<Pattern> exclusions,
 		final Pattern findRegex,
@@ -128,17 +128,18 @@ public final class ProcessFilesTask
 		final boolean replaceAll,
 		final Log log) throws IOException
 	{
+		File workFile = file;
 		
 		// Rename the directory
-		if(processDirectoryNames && !shouldExcludeFile(exclusions, file))
+		if(processDirectoryNames && !shouldExcludeFile(exclusions, workFile))
 		{
-			file = renameFile(log, file, findRegex, replaceValue, replaceAll);
+			workFile = renameFile(log, workFile, findRegex, replaceValue, replaceAll);
 		}
 		
 		// If recursive, add child files to iterator
 		if(isRecursive)
 		{
-			final File[] filesToAdd = file.listFiles();
+			final File[] filesToAdd = workFile.listFiles();
 			assert filesToAdd != null;
 			for(final File f : filesToAdd)
 			{
@@ -152,35 +153,17 @@ public final class ProcessFilesTask
 	
 	private static boolean shouldExcludeFile(final List<Pattern> exclusions, final File file)
 	{
-		
-		for(final Pattern p : exclusions)
-		{
-			if(p.matcher(file.getName()).find())
-			{
-				return true;
-			}
-		}
-		
-		return false;
+		return exclusions.stream().anyMatch(p -> p.matcher(file.getName()).find());
 	}
 	
 	private static boolean shouldProcessFile(final List<String> fileMasks, final File file)
 	{
-		
 		if(fileMasks.isEmpty())
 		{
 			return true;
 		}
 		
-		for(final String fileMask : fileMasks)
-		{
-			if(file.getName().endsWith(fileMask))
-			{
-				return true;
-			}
-		}
-		
-		return false;
+		return fileMasks.stream().anyMatch(fileMask -> file.getName().endsWith(fileMask));
 	}
 	
 	private static File renameFile(
@@ -191,7 +174,6 @@ public final class ProcessFilesTask
 		final boolean replaceAll)
 		throws IOException
 	{
-		
 		final Path filePath = file.toPath();
 		final Path parentDir = filePath.getParent();
 		final String oldName = file.getName();
