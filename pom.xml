@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>find-and-replace-maven-plugin</module>
+		<module>find-and-replace-maven-sandbox</module>
 	</modules>
 
 	<licenses>
