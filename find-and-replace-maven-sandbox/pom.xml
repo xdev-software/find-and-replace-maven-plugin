@@ -74,8 +74,6 @@
 									<fileMask>ApiClient.txt</fileMask>
 									<!-- @formatter:off DO NOT INTRODUCE LINE BREAK -->
 									<findRegex>^(import com\.fasterxml\.jackson\.jaxrs\.json\.JacksonJsonProvider;)$</findRegex>
-									<!-- Can't be removed as the plugin isn't supporting empty values -->
-									<replaceValue>// $1</replaceValue>
 									<!-- @formatter:on -->
 								</configuration>
 							</execution>

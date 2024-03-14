@@ -455,6 +455,21 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
+	void testFileContentsEmptyReplacementValue()
+	{
+		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "asdf");
+		this.setFieldValue(this.findAndReplaceMojo, "processFileContents", true);
+		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "file-contents");
+		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
+		
+		this.executeMojoAssertDoesNotThrow();
+		
+		assertFalse(this.fileContains(this.textTestFile.toFile(), "asdf"));
+		assertFalse(this.fileContains(this.xmlTestFile.toFile(), "asdf"));
+		assertFalse(this.fileContains(this.ymlTestFile.toFile(), "asdf"));
+	}
+	
+	@Test
 	void testFileContentsReplaceFirst()
 	{
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "asdf");

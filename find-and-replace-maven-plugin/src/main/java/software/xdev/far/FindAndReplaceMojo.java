@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -86,7 +87,7 @@ public class FindAndReplaceMojo extends AbstractMojo
 	 *
 	 * @parameter replaceValue
 	 */
-	@Parameter(property = "replaceValue", required = true, defaultValue = "")
+	@Parameter(property = "replaceValue")
 	private String replaceValue;
 	
 	/**
@@ -173,7 +174,7 @@ public class FindAndReplaceMojo extends AbstractMojo
 				this.baseDirPath,
 				this.recursive,
 				Pattern.compile(this.findRegex),
-				this.replaceValue,
+				Optional.ofNullable(this.replaceValue).orElse(""),
 				this.fileMaskList,
 				this.exclusionsList,
 				this.processFileContents,
