@@ -98,11 +98,11 @@ jobs:
           ## Installation
           Add the following lines to your pom:
           ```XML
-          <dependency>
+          <plugin>
              <groupId>software.xdev</groupId>
              <artifactId>${{ env.PRIMARY_MAVEN_MODULE }}</artifactId>
              <version>${{ steps.version.outputs.release }}</version>
-          </dependency>
+          </plugin>
           ```
 
   publish_central: # Publish the code to central
