@@ -1,3 +1,3 @@
 # Sandbox showcasing how the plugin can be used
 
-Run it using ``mvn compile -P test-sandbox``
+Run it using ``mvn clean package -P test-sandbox``
