@@ -1,5 +1,21 @@
+/*
+ * Copyright © 2024 XDEV Software (https://xdev.software)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package software.xdev.far;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,23 +24,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.Objects;
-import java.util.stream.Stream;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 
 /**
@@ -35,8 +46,6 @@ class FindAndReplaceMojoTest
 {
 	private final FindAndReplaceMojo findAndReplaceMojo = new FindAndReplaceMojo();
 	
-	private Path runningTestsPath;
-	
 	private Path textTestFile;
 	
 	private Path xmlTestFile;
@@ -45,41 +54,41 @@ class FindAndReplaceMojoTest
 	
 	private Path nonUtfTestFile;
 	
-	@BeforeEach
-	void setUpAll() throws NoSuchFieldException, IllegalAccessException, IOException, URISyntaxException
+	@TempDir
+	private Path runningTestsPath;
+	
+	private Path copyFileIntoTestDir(final String fileName)
 	{
-		final URL integration = ClassLoader.getSystemResource("integration");
-		final Path integrationFolder = Paths.get(Objects.requireNonNull(
-			integration.toURI()));
-		this.runningTestsPath = Paths.get(integrationFolder.toString(), "runner");
-		
-		Files.createDirectory(this.runningTestsPath);
-		
-		this.textTestFile = Files.copy(
-			Paths.get(integrationFolder.toString(), "test-file.txt"),
-			Paths.get(this.runningTestsPath.toString(), "test-file.txt"));
-		this.xmlTestFile = Files.copy(
-			Paths.get(integrationFolder.toString(), "test-file.xml"),
-			Paths.get(this.runningTestsPath.toString(), "test-file.xml"));
-		this.ymlTestFile = Files.copy(
-			Paths.get(integrationFolder.toString(), "test-file.yml"),
-			Paths.get(this.runningTestsPath.toString(), "test-file.yml"));
-		this.nonUtfTestFile = Files.copy(
-			Paths.get(integrationFolder.toString(), "non-utf"),
-			Paths.get(this.runningTestsPath.toString(), "non-utf"));
+		try
+		{
+			final Path target = Paths.get(this.runningTestsPath.toString(), fileName);
+			Files.copy(Objects.requireNonNull(this.getClass().getResourceAsStream("/" + fileName)), target);
+			return target;
+		}
+		catch(final IOException e)
+		{
+			throw new UncheckedIOException(e);
+		}
+	}
+	
+	@BeforeEach
+	void beforeEach()
+	{
+		this.textTestFile = this.copyFileIntoTestDir("test-file.txt");
+		this.xmlTestFile = this.copyFileIntoTestDir("test-file.xml");
+		this.ymlTestFile = this.copyFileIntoTestDir("test-file.yml");
+		this.nonUtfTestFile = this.copyFileIntoTestDir("non-utf");
 		
 		this.setFieldValue(this.findAndReplaceMojo, "baseDir", this.runningTestsPath.toString());
 	}
 	
-	@AfterEach
-	void cleanup() throws IOException
+	private void executeMojoAssertDoesNotThrow()
 	{
-		this.recursiveDelete(this.runningTestsPath);
+		assertDoesNotThrow(this.findAndReplaceMojo::execute);
 	}
 	
 	@Test
-	void testDirectoryNames() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNames() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -91,7 +100,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "directory-names");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedFirstDirPath = Paths.get(this.runningTestsPath.toString(), "test_top_directory");
 		final Path expectedSecondDirPath = Paths.get(expectedFirstDirPath.toString(), secondDirName);
@@ -102,8 +111,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testDirectoryNamesReplaceFirst() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNamesReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -115,7 +123,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "directory-names");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedFirstDirPath = Paths.get(this.runningTestsPath.toString(), "test_top-directory");
 		final Path expectedSecondDirPath = Paths.get(expectedFirstDirPath.toString(), secondDirName);
@@ -126,8 +134,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testDirectoryNamesRecursive() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNamesRecursive() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -140,7 +147,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedFirstDirPath = Paths.get(this.runningTestsPath.toString(), "test_top_directory");
 		final Path expectedSecondDirPath = Paths.get(expectedFirstDirPath.toString(), "test_sub_directory");
@@ -151,9 +158,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testDirectoryNamesRecursiveReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNamesRecursiveReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -166,7 +171,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedFirstDirPath = Paths.get(this.runningTestsPath.toString(), "test_top-directory");
 		final Path expectedSecondDirPath = Paths.get(expectedFirstDirPath.toString(), "test_sub-directory");
@@ -177,9 +182,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testDirectoryNamesRecursiveExclusions()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNamesRecursiveExclusions() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -193,7 +196,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedSecondDirPath = Paths.get(firstDir.toString(), "test_sub_directory");
 		
@@ -203,9 +206,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testDirectoryNamesRecursiveExclusionsReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testDirectoryNamesRecursiveExclusionsReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-top-directory"));
 		final String secondDirName = "test-sub-directory";
@@ -219,7 +220,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path expectedSecondDirPath = Paths.get(firstDir.toString(), "test_sub-directory");
 		
@@ -229,8 +230,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFilenames() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenames() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		Files.createFile(Paths.get(this.runningTestsPath.toString(), "some_file_name"));
@@ -242,15 +242,14 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "filenames");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(Paths.get(this.runningTestsPath.toString(), "some-file-name")));
 		assertTrue(Files.exists(nonRecurseFile));
 	}
 	
 	@Test
-	void testFilenamesReplaceFirst() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		Files.createFile(Paths.get(this.runningTestsPath.toString(), "some_file_name"));
@@ -262,15 +261,14 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "filenames");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(Paths.get(this.runningTestsPath.toString(), "some-file_name")));
 		assertTrue(Files.exists(nonRecurseFile));
 	}
 	
 	@Test
-	void testFilenamesRecursive() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursive() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		Files.createFile(Paths.get(this.runningTestsPath.toString(), "some_file_name"));
@@ -283,15 +281,14 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(Paths.get(this.runningTestsPath.toString(), "some-file-name")));
 		assertTrue(Files.exists(Paths.get(firstDir.toString(), "some-file-name")));
 	}
 	
 	@Test
-	void testFilenamesRecursiveReplaceFirst() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursiveReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		Files.createFile(Paths.get(this.runningTestsPath.toString(), "some_file_name"));
@@ -304,15 +301,14 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(Paths.get(this.runningTestsPath.toString(), "some-file_name")));
 		assertTrue(Files.exists(Paths.get(firstDir.toString(), "some-file_name")));
 	}
 	
 	@Test
-	void testFilenamesRecursiveFileMasks() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursiveFileMasks() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path secondDir = Files.createDirectories(Paths.get(firstDir.toString(), "test-sub-dir"));
@@ -331,7 +327,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(unchangedFile1));
 		assertTrue(Files.exists(unchangedFile2));
@@ -343,9 +339,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFilenamesRecursiveFileMasksReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursiveFileMasksReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path secondDir = Files.createDirectories(Paths.get(firstDir.toString(), "test-sub-dir"));
@@ -364,7 +358,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(unchangedFile1));
 		assertTrue(Files.exists(unchangedFile2));
@@ -376,9 +370,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFilenamesRecursiveFileMasksWithExclusions()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursiveFileMasksWithExclusions() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path secondDir = Files.createDirectories(Paths.get(firstDir.toString(), "test-sub-dir"));
@@ -398,7 +390,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(unchangedFile1));
 		assertTrue(Files.exists(unchangedFile2));
@@ -410,9 +402,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFilenamesRecursiveFileMasksWithExclusionsReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFilenamesRecursiveFileMasksWithExclusionsReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path secondDir = Files.createDirectories(Paths.get(firstDir.toString(), "test-sub-dir"));
@@ -432,7 +422,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(Files.exists(unchangedFile1));
 		assertTrue(Files.exists(unchangedFile2));
@@ -444,8 +434,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContents() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContents()
 	{
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "asdf");
 		final String replaceValue = "value successfully replaced";
@@ -454,7 +443,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "file-contents");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -466,8 +455,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsReplaceFirst() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsReplaceFirst()
 	{
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "asdf");
 		final String replaceValue = "value successfully replaced";
@@ -476,7 +464,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "replacementType", "file-contents");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -489,8 +477,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardEncodingFindRegex()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace non-standard with standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "ìíîï");
@@ -501,7 +487,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertFalse(this.fileContains(this.nonUtfTestFile.toFile(), "àáâãäåæçèéêëìíîï", StandardCharsets.ISO_8859_1));
@@ -509,8 +495,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardEncodingFindRegexReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace non-standard with standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "ìíîï");
@@ -521,7 +505,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), "àáâãäåæçèéêëìíîï", StandardCharsets.ISO_8859_1));
@@ -529,8 +513,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardReplaceValue()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace standard with non-standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "test");
@@ -541,7 +523,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertFalse(this.fileContains(this.nonUtfTestFile.toFile(), "test", StandardCharsets.ISO_8859_1));
@@ -549,8 +531,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardReplaceValueReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace standard with non-standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "test");
@@ -561,7 +541,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), "test", StandardCharsets.ISO_8859_1));
@@ -569,8 +549,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardFindAndReplaceValue()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace non-standard with non-standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "àáâãäåæçèéêëìíîï");
@@ -581,7 +559,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertFalse(this.fileContains(this.nonUtfTestFile.toFile(), "àáâãäåæçèéêëìíîï", StandardCharsets.ISO_8859_1));
@@ -589,8 +567,6 @@ class FindAndReplaceMojoTest
 	
 	@Test
 	void testFileContentsNonStandardFindAndReplaceValueReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
 	{
 		// Replace non-standard with non-standard
 		this.setFieldValue(this.findAndReplaceMojo, "findRegex", "àáâãäåæçèéêëìíîï");
@@ -601,15 +577,14 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "encoding", "ISO-8859-1");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
 		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), "àáâãäåæçèéêëìíîï", StandardCharsets.ISO_8859_1));
 	}
 	
 	@Test
-	void testFileContentsRecursive() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursive() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -629,7 +604,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -647,9 +622,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsRecursiveReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursiveReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -669,7 +642,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", true);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -687,8 +660,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsNotRecursive() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsNotRecursive() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -708,7 +680,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", false);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -726,9 +698,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsNotRecursiveReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsNotRecursiveReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -748,7 +718,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "recursive", false);
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertTrue(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -766,8 +736,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsRecursiveFileMasks() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursiveFileMasks() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -788,7 +757,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "fileMask", ".xml,.yml");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -806,9 +775,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsRecursiveFileMasksReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursiveFileMasksReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -829,7 +796,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "fileMask", ".xml,.yml");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -847,9 +814,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsRecursiveFileMasksExclusions()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursiveFileMasksExclusions() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -871,7 +836,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "exclusions", ".yml$");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -889,9 +854,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testFileContentsRecursiveFileMasksExclusionsReplaceFirst()
-		throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testFileContentsRecursiveFileMasksExclusionsReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path testFileXmlMoved = Files.copy(this.xmlTestFile, Paths.get(
@@ -913,7 +876,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "exclusions", ".yml$");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), replaceValue));
 		assertTrue(this.fileContains(this.xmlTestFile.toFile(), replaceValue));
@@ -931,8 +894,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testEverything() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testEverything() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-directory"));
 		final Path secondDir = Files.createDirectory(Paths.get(firstDir.toString(), "test-sub-directory"));
@@ -954,7 +916,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "exclusions", ".yml$");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", true);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path firstDirRenamed = Paths.get(this.runningTestsPath.toString(), "rep-directory");
 		final Path secondDirRenamed = Paths.get(firstDirRenamed.toString(), "rep-sub-directory");
@@ -1005,8 +967,7 @@ class FindAndReplaceMojoTest
 	}
 	
 	@Test
-	void testEverythingReplaceFirst() throws IOException, NoSuchFieldException, IllegalAccessException,
-		MojoExecutionException, MojoFailureException
+	void testEverythingReplaceFirst() throws IOException
 	{
 		final Path firstDir = Files.createDirectory(Paths.get(this.runningTestsPath.toString(), "test-test-directory"
 		));
@@ -1029,7 +990,7 @@ class FindAndReplaceMojoTest
 		this.setFieldValue(this.findAndReplaceMojo, "exclusions", ".yml$");
 		this.setFieldValue(this.findAndReplaceMojo, "replaceAll", false);
 		
-		this.findAndReplaceMojo.execute();
+		this.executeMojoAssertDoesNotThrow();
 		
 		final Path firstDirRenamed = Paths.get(this.runningTestsPath.toString(), "rep-test-directory");
 		final Path secondDirRenamed = Paths.get(firstDirRenamed.toString(), "rep-test-sub-directory");
@@ -1080,35 +1041,35 @@ class FindAndReplaceMojoTest
 	}
 	
 	private void setFieldValue(final Object obj, final String fieldName, final Object val)
-		throws NoSuchFieldException, IllegalAccessException
 	{
-		final Field field = obj.getClass().getDeclaredField(fieldName);
-		field.setAccessible(true);
-		field.set(obj, val);
+		try
+		{
+			final Field field = obj.getClass().getDeclaredField(fieldName);
+			field.setAccessible(true);
+			field.set(obj, val);
+		}
+		catch(final NoSuchFieldException | IllegalAccessException e)
+		{
+			throw new RuntimeException("Failed to set value", e);
+		}
 	}
 	
-	private void recursiveDelete(final Path pathToBeDeleted) throws IOException
-	{
-		Files.walk(pathToBeDeleted)
-			.sorted(Comparator.reverseOrder())
-			.map(Path::toFile)
-			.forEach(File::delete);
-	}
-	
-	private boolean fileContains(final File file, final String findValue) throws IOException
+	private boolean fileContains(final File file, final String findValue)
 	{
 		return this.fileContains(file, findValue, Charset.defaultCharset());
 	}
 	
-	private boolean fileContains(final File file, final String findValue, final Charset charset) throws IOException
+	private boolean fileContains(final File file, final String findValue, final Charset charset)
 	{
 		try(final FileInputStream fis = new FileInputStream(file);
 			final InputStreamReader isr = new InputStreamReader(fis, charset);
 			final BufferedReader fileReader = new BufferedReader(isr))
 		{
-			final Stream<String> lines = fileReader.lines();
-			
-			return lines.anyMatch(line -> line.contains(findValue));
+			return fileReader.lines().anyMatch(line -> line.contains(findValue));
+		}
+		catch(final IOException e)
+		{
+			throw new UncheckedIOException(e);
 		}
 	}
 }
