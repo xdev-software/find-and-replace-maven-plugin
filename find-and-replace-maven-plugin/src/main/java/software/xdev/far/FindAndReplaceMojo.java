@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package software.xdev.farmp;
+package software.xdev.far;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import software.xdev.farmp.tasks.ProcessFilesTask;
+import software.xdev.far.tasks.ProcessFilesTask;
 
 
 /**
