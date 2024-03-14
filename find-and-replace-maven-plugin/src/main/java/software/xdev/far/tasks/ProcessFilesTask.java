@@ -209,7 +209,6 @@ public final class ProcessFilesTask
 				final OutputStreamWriter osr = new OutputStreamWriter(fos, charset);
 				final BufferedWriter fileWriter = new BufferedWriter(osr))
 			{
-				
 				boolean alreadyReplaced = false;
 				
 				for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
