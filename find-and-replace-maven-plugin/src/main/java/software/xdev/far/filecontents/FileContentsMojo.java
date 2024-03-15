@@ -24,6 +24,15 @@ public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 	@Parameter(property = "encoding")
 	String encoding;
 	
+	/**
+	 * Specify to match line based or otherwise match the whole document.
+	 * <p>
+	 * When this value is set to <code>false</code> more memory may be required as the whole file is processed at once.
+	 * </p>
+	 */
+	@Parameter(property = "replaceLineBased", defaultValue = "true")
+	boolean replaceLineBased = true;
+	
 	public FileContentsMojo()
 	{
 		super(FileContentsProcessor::new);
@@ -45,12 +54,18 @@ public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 						return null;
 					}
 				})
-				.orElseGet(Charset::defaultCharset)
+				.orElseGet(Charset::defaultCharset),
+			this.replaceLineBased
 		);
 	}
 	
 	public void setEncoding(final String encoding)
 	{
 		this.encoding = encoding;
+	}
+	
+	public void setReplaceLineBased(final boolean replaceLineBased)
+	{
+		this.replaceLineBased = replaceLineBased;
 	}
 }

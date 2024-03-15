@@ -1,5 +1,6 @@
 package software.xdev.far.filecontents;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,13 +46,40 @@ class FileContentsMojoTest extends BaseMojoTest<FileContentsMojo>
 	void testFileContentsEmptyReplacementValue()
 	{
 		this.mojo.setFindRegex("asdf");
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), "asdf"));
 		assertFalse(this.fileContains(this.xmlTestFile.toFile(), "asdf"));
 		assertFalse(this.fileContains(this.ymlTestFile.toFile(), "asdf"));
+	}
+	
+	@Test
+	void testFileContentsReplaceLineBasedFalse()
+	{
+		this.mojo.setFindRegex("asdf");
+		this.mojo.setReplaceLineBased(false);
+		
+		this.executeMojoAssertDoesNotThrow();
+		
+		assertFalse(this.fileContains(this.textTestFile.toFile(), "asdf"));
+		assertFalse(this.fileContains(this.xmlTestFile.toFile(), "asdf"));
+		assertFalse(this.fileContains(this.ymlTestFile.toFile(), "asdf"));
+	}
+	
+	@Test
+	void testFileContentsReplaceWholeFile() throws IOException
+	{
+		this.mojo.setFindRegex("[\\r|\\n|\\r\\n]*asdf[\\r|\\n|\\r\\n]*");
+		this.mojo.setFileMask("test-file.txt");
+		this.mojo.setReplaceLineBased(false);
+		
+		this.executeMojoAssertDoesNotThrow();
+		
+		assertFalse(this.fileContains(this.textTestFile.toFile(), "asdf"));
+		
+		final List<String> lines = Files.readAllLines(this.textTestFile);
+		assertEquals(1, lines.size());
 	}
 	
 	@Test

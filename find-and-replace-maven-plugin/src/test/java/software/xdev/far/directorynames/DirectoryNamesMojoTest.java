@@ -28,7 +28,6 @@ class DirectoryNamesMojoTest extends BaseMojoTest<DirectoryNamesMojo>
 		
 		this.mojo.setFindRegex("-");
 		this.mojo.setReplaceValue("_");
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
@@ -71,7 +70,6 @@ class DirectoryNamesMojoTest extends BaseMojoTest<DirectoryNamesMojo>
 		this.mojo.setFindRegex("-");
 		this.mojo.setReplaceValue("_");
 		this.mojo.setRecursive(true);
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
@@ -116,7 +114,6 @@ class DirectoryNamesMojoTest extends BaseMojoTest<DirectoryNamesMojo>
 		this.mojo.setReplaceValue("_");
 		this.mojo.setExclusions("-top-");
 		this.mojo.setRecursive(true);
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		

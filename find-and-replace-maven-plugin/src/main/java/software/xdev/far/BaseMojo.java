@@ -68,7 +68,7 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 	 * Whether the find and replace maven plugin replaces all matches or just the first match.
 	 */
 	@Parameter(property = "replaceAll", defaultValue = "true")
-	boolean replaceAll;
+	boolean replaceAll = true;
 	
 	protected final Consumer<D> executeInternal;
 	

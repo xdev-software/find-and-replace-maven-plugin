@@ -28,7 +28,6 @@ class FileNamesMojoTest extends BaseMojoTest<FileNamesMojo>
 		
 		this.mojo.setFindRegex("_");
 		this.mojo.setReplaceValue("-");
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
@@ -63,7 +62,6 @@ class FileNamesMojoTest extends BaseMojoTest<FileNamesMojo>
 		this.mojo.setFindRegex("_");
 		this.mojo.setReplaceValue("-");
 		this.mojo.setRecursive(true);
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
@@ -105,7 +103,6 @@ class FileNamesMojoTest extends BaseMojoTest<FileNamesMojo>
 		this.mojo.setReplaceValue("-");
 		this.mojo.setFileMask(".xml,.txt,.yml");
 		this.mojo.setRecursive(true);
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
@@ -164,7 +161,6 @@ class FileNamesMojoTest extends BaseMojoTest<FileNamesMojo>
 		this.mojo.setFileMask(".xml,.txt,.yml");
 		this.mojo.setExclusions(".yml$");
 		this.mojo.setRecursive(true);
-		this.mojo.setReplaceAll(true);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
