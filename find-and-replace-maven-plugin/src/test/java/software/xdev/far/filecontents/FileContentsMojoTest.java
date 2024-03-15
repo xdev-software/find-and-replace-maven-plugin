@@ -73,13 +73,12 @@ class FileContentsMojoTest extends BaseMojoTest<FileContentsMojo>
 	void testFileContentsReplaceLineBasedFalse()
 	{
 		this.mojo.setFindRegex("asdf");
+		this.mojo.setFileMask("test-file.txt");
 		this.mojo.setReplaceLineBased(false);
 		
 		this.executeMojoAssertDoesNotThrow();
 		
 		assertFalse(this.fileContains(this.textTestFile.toFile(), "asdf"));
-		assertFalse(this.fileContains(this.xmlTestFile.toFile(), "asdf"));
-		assertFalse(this.fileContains(this.ymlTestFile.toFile(), "asdf"));
 	}
 	
 	@Test

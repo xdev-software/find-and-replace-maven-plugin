@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 
 import software.xdev.far.BaseProcessor;
@@ -42,7 +43,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 	{
 		try
 		{
-			File tempFile = null;
+			Path tempFile = null;
 			
 			if(this.execData.isReplaceLineBased())
 			{
@@ -51,7 +52,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 					final InputStreamReader isr = new InputStreamReader(fis, this.execData.getCharset());
 					final BufferedReader fileReader = new BufferedReader(isr))
 				{
-					try(final FileOutputStream fos = new FileOutputStream(tempFile);
+					try(final FileOutputStream fos = new FileOutputStream(tempFile.toFile());
 						final OutputStreamWriter osr = new OutputStreamWriter(fos, this.execData.getCharset());
 						final BufferedWriter fileWriter = new BufferedWriter(osr))
 					{
@@ -84,7 +85,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 				{
 					tempFile = this.createTempFile(file);
 					
-					Files.writeString(tempFile.toPath(), this.execData.isReplaceAll()
+					Files.writeString(tempFile, this.execData.isReplaceAll()
 						? matcher.replaceAll(this.execData.getReplaceValue())
 						: matcher.replaceFirst(this.execData.getReplaceValue()));
 				}
@@ -94,10 +95,10 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 			{
 				Files.delete(file.toPath());
 				
-				if(!tempFile.renameTo(file))
+				if(!tempFile.toFile().renameTo(file))
 				{
 					throw new IOException(
-						"Failed to rename temp file at: " + tempFile.getPath() + " to " + file.getPath());
+						"Failed to rename temp file at: " + tempFile + " to " + file.getPath());
 				}
 			}
 		}
@@ -107,8 +108,8 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 		}
 	}
 	
-	protected File createTempFile(final File original) throws IOException
+	protected Path createTempFile(final File original) throws IOException
 	{
-		return File.createTempFile("tmp", "tmp", original.getParentFile());
+		return Files.createTempFile(original.getParentFile().toPath(), "tmp", "tmp");
 	}
 }
