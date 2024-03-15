@@ -38,6 +38,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 		super(execData);
 	}
 	
+	@SuppressWarnings("java:S6300") // Writing to same directory and only temporary
 	@Override
 	protected void handleFileContents(final File file)
 	{
