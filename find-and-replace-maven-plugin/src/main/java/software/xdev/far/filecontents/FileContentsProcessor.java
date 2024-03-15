@@ -53,7 +53,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 								alreadyReplaced = true;
 							}
 						}
-						fileWriter.write(line + "\n");
+						fileWriter.write(line + System.lineSeparator());
 					}
 				}
 			}
