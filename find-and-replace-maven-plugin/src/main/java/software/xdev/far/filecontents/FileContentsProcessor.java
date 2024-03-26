@@ -60,20 +60,21 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 						boolean alreadyReplaced = false;
 						for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
 						{
+							String lineToWrite = line;
 							final Matcher matcher = this.execData.getFindRegex().matcher(line);
 							if(matcher.find())
 							{
 								if(this.execData.isReplaceAll())
 								{
-									line = matcher.replaceAll(this.execData.getReplaceValue());
+									lineToWrite = matcher.replaceAll(this.execData.getReplaceValue());
 								}
 								else if(!alreadyReplaced)
 								{
-									line = matcher.replaceFirst(this.execData.getReplaceValue());
+									lineToWrite = matcher.replaceFirst(this.execData.getReplaceValue());
 									alreadyReplaced = true;
 								}
 							}
-							fileWriter.write(line + System.lineSeparator());
+							fileWriter.write(lineToWrite + System.lineSeparator());
 						}
 					}
 				}
