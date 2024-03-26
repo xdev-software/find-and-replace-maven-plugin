@@ -32,22 +32,19 @@ public class FindAndReplaceExecData extends ExecData
 	
 	private final Charset charset;
 	
-	private final boolean replaceLineBased;
 	
 	public FindAndReplaceExecData(
 		final ExecData other,
 		final boolean processFileContents,
 		final boolean processFilenames,
 		final boolean processDirectoryNames,
-		final Charset charset,
-		final boolean replaceLineBased)
+		final Charset charset)
 	{
 		super(other);
 		this.processFileContents = processFileContents;
 		this.processFilenames = processFilenames;
 		this.processDirectoryNames = processDirectoryNames;
 		this.charset = charset;
-		this.replaceLineBased = replaceLineBased;
 	}
 	
 	public boolean isProcessFileContents()
@@ -68,10 +65,5 @@ public class FindAndReplaceExecData extends ExecData
 	public Charset getCharset()
 	{
 		return this.charset;
-	}
-	
-	public boolean isReplaceLineBased()
-	{
-		return this.replaceLineBased;
 	}
 }

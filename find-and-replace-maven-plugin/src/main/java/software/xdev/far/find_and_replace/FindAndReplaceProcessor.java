@@ -63,63 +63,43 @@ public class FindAndReplaceProcessor extends BaseProcessor<FindAndReplaceExecDat
 	{
 		try
 		{
-			Path tempFile = null;
-			
-			if(this.execData.isReplaceLineBased())
+			final Path tempFile = this.createTempFile(file);
+			try(final FileInputStream fis = new FileInputStream(file);
+				final InputStreamReader isr = new InputStreamReader(fis, this.execData.getCharset());
+				final BufferedReader fileReader = new BufferedReader(isr))
 			{
-				tempFile = this.createTempFile(file);
-				try(final FileInputStream fis = new FileInputStream(file);
-					final InputStreamReader isr = new InputStreamReader(fis, this.execData.getCharset());
-					final BufferedReader fileReader = new BufferedReader(isr))
+				try(final FileOutputStream fos = new FileOutputStream(tempFile.toFile());
+					final OutputStreamWriter osr = new OutputStreamWriter(fos, this.execData.getCharset());
+					final BufferedWriter fileWriter = new BufferedWriter(osr))
 				{
-					try(final FileOutputStream fos = new FileOutputStream(tempFile.toFile());
-						final OutputStreamWriter osr = new OutputStreamWriter(fos, this.execData.getCharset());
-						final BufferedWriter fileWriter = new BufferedWriter(osr))
+					boolean alreadyReplaced = false;
+					for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
 					{
-						boolean alreadyReplaced = false;
-						for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
+						final Matcher matcher = this.execData.getFindRegex().matcher(line);
+						String lineToWrite = line;
+						if(matcher.find())
 						{
-							final Matcher matcher = this.execData.getFindRegex().matcher(line);
-							if(matcher.find())
+							if(this.execData.isReplaceAll())
 							{
-								if(this.execData.isReplaceAll())
-								{
-									line = matcher.replaceAll(this.execData.getReplaceValue());
-								}
-								else if(!alreadyReplaced)
-								{
-									line = matcher.replaceFirst(this.execData.getReplaceValue());
-									alreadyReplaced = true;
-								}
+								lineToWrite = matcher.replaceAll(this.execData.getReplaceValue());
 							}
-							fileWriter.write(line + System.lineSeparator());
+							else if(!alreadyReplaced)
+							{
+								lineToWrite = matcher.replaceFirst(this.execData.getReplaceValue());
+								alreadyReplaced = true;
+							}
 						}
+						fileWriter.write(lineToWrite + System.lineSeparator());
 					}
 				}
 			}
-			else
-			{
-				final String contents = Files.readString(file.toPath(), this.execData.getCharset());
-				final Matcher matcher = this.execData.getFindRegex().matcher(contents);
-				if(matcher.find())
-				{
-					tempFile = this.createTempFile(file);
-					
-					Files.writeString(tempFile, this.execData.isReplaceAll()
-						? matcher.replaceAll(this.execData.getReplaceValue())
-						: matcher.replaceFirst(this.execData.getReplaceValue()));
-				}
-			}
 			
-			if(tempFile != null)
+			Files.delete(file.toPath());
+			
+			if(!tempFile.toFile().renameTo(file))
 			{
-				Files.delete(file.toPath());
-				
-				if(!tempFile.toFile().renameTo(file))
-				{
-					throw new IOException(
-						"Failed to rename temp file at: " + tempFile + " to " + file.getPath());
-				}
+				throw new IOException(
+					"Failed to rename temp file at: " + tempFile + " to " + file.getPath());
 			}
 		}
 		catch(final IOException e)

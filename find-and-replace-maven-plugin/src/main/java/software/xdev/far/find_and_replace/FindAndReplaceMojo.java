@@ -84,8 +84,7 @@ public class FindAndReplaceMojo extends BaseMojo<FindAndReplaceExecData>
 						return null;
 					}
 				})
-				.orElseGet(Charset::defaultCharset),
-			true
+				.orElseGet(Charset::defaultCharset)
 		);
 	}
 	
