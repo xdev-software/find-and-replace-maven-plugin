@@ -17,6 +17,7 @@ package software.xdev.far.filecontents;
 
 import java.nio.charset.Charset;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -37,7 +38,7 @@ public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 	 * </p>
 	 */
 	@Parameter(property = "encoding")
-	String encoding;
+	protected String encoding;
 	
 	/**
 	 * Specify to match line based or otherwise match the whole document.
@@ -46,7 +47,7 @@ public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 	 * </p>
 	 */
 	@Parameter(property = "replaceLineBased", defaultValue = "true")
-	boolean replaceLineBased = true;
+	protected boolean replaceLineBased = true;
 	
 	public FileContentsMojo()
 	{
@@ -72,6 +73,14 @@ public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 				.orElseGet(Charset::defaultCharset),
 			this.replaceLineBased
 		);
+	}
+	
+	@Override
+	protected Pattern compileFindRegex()
+	{
+		return !this.replaceLineBased
+			? Pattern.compile(this.findRegex, Pattern.MULTILINE)
+			: super.compileFindRegex();
 	}
 	
 	public void setEncoding(final String encoding)

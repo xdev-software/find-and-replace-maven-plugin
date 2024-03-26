@@ -30,31 +30,31 @@ import org.apache.maven.project.MavenProject;
 public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 {
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
-	MavenProject project;
+	protected MavenProject project;
 	
 	/**
 	 * The base directory from which to perform the find and replace. This is relative to the location of the pom.
 	 */
 	@Parameter(property = "baseDir", defaultValue = "${basedir}")
-	String baseDir;
+	protected String baseDir;
 	
 	/**
 	 * Whether the find and replace is recursive from the baseDir.
 	 */
 	@Parameter(property = "recursive", defaultValue = "false")
-	boolean recursive;
+	protected boolean recursive;
 	
 	/**
 	 * The regex string to find.
 	 */
 	@Parameter(property = "findRegex", required = true)
-	String findRegex;
+	protected String findRegex;
 	
 	/**
 	 * The value to replace the matching findRegex with.
 	 */
 	@Parameter(property = "replaceValue")
-	String replaceValue;
+	protected String replaceValue;
 	
 	/**
 	 * A CSV of the file types to search in. For example for the value: .xml Only files ending with .xml will be
@@ -65,25 +65,25 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 	 * Ignored for directories.
 	 */
 	@Parameter(property = "fileMask")
-	String fileMask;
+	protected String fileMask;
 	
 	/**
 	 * Regex filenames/directory-names to exclude.
 	 */
 	@Parameter(property = "exclusions")
-	String exclusions;
+	protected String exclusions;
 	
 	/**
 	 * Skip execution of the plugin.
 	 */
 	@Parameter(property = "skip", defaultValue = "false")
-	boolean skip;
+	protected boolean skip;
 	
 	/**
 	 * Whether the find and replace maven plugin replaces all matches or just the first match.
 	 */
 	@Parameter(property = "replaceAll", defaultValue = "true")
-	boolean replaceAll = true;
+	protected boolean replaceAll = true;
 	
 	protected final Consumer<D> executeInternal;
 	
@@ -97,7 +97,7 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 	{
 		if(this.skip)
 		{
-			this.getLog().warn("Skipping execution of find-and-replace-maven-plugin.");
+			this.getLog().warn("Skipping execution");
 			return;
 		}
 		
@@ -112,7 +112,7 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 				? Paths.get(this.baseDir)
 				: Paths.get(this.project.getBasedir().getAbsolutePath(), this.baseDir),
 			this.recursive,
-			Pattern.compile(this.findRegex),
+			this.compileFindRegex(),
 			Optional.ofNullable(this.replaceValue).orElse(""),
 			Optional.ofNullable(this.fileMask)
 				.map(s -> List.of(s.split(",")))
@@ -122,6 +122,11 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 				.map(List::of)
 				.orElseGet(List::of),
 			this.replaceAll);
+	}
+	
+	protected Pattern compileFindRegex()
+	{
+		return Pattern.compile(this.findRegex);
 	}
 	
 	protected abstract D enrichData(ExecData data);
