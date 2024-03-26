@@ -10,8 +10,8 @@ A maven plugin for replacing content in files, filenames and directories.
 > [!NOTE]
 > This is a fork of [floverfelt/find-and-replace-maven-plugin](https://github.com/floverfelt/find-and-replace-maven-plugin) with some additional functionallity.
 
-## Useage
-A plugin usage guide is available [in the plugin docs](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info).
+## Usage
+A usage guide is available [in the plugin docs](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info).
 
 ## Installation
 [Installation guide for the latest release](https://github.com/xdev-software/find-and-replace-maven-plugin/releases/latest#Installation)
