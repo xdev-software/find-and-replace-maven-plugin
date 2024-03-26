@@ -6,6 +6,9 @@ on:
 env:
   PRIMARY_MAVEN_MODULE: ${{ github.event.repository.name }}
 
+permissions:
+  contents: write
+
 jobs:
   publish-pages:
     runs-on: ubuntu-latest
