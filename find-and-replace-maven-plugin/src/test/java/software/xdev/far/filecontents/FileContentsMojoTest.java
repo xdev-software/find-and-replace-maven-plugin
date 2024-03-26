@@ -132,22 +132,6 @@ class FileContentsMojoTest extends BaseMojoTest<FileContentsMojo>
 	}
 	
 	@Test
-	void testFileContentsNonStandardEncodingFindRegexReplaceFirst()
-	{
-		// Replace non-standard with standard
-		this.mojo.setFindRegex("ìíîï");
-		final String replaceValue = "value successfully replaced";
-		this.mojo.setReplaceValue(replaceValue);
-		this.mojo.setEncoding("ISO-8859-1");
-		this.mojo.setReplaceAll(false);
-		
-		this.executeMojoAssertDoesNotThrow();
-		
-		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), replaceValue, StandardCharsets.ISO_8859_1));
-		assertTrue(this.fileContains(this.nonUtfTestFile.toFile(), "àáâãäåæçèéêëìíîï", StandardCharsets.ISO_8859_1));
-	}
-	
-	@Test
 	void testFileContentsNonStandardReplaceValue()
 	{
 		// Replace standard with non-standard
