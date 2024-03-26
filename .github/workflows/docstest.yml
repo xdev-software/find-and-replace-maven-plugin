@@ -8,7 +8,6 @@ env:
 
 jobs:
   publish-pages:
-    name: Publish dependencies and licenses to github pages
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -27,7 +26,7 @@ jobs:
         cache: 'maven'
 
     - name: Build site
-      run: mvn -B site
+      run: ../mvnw -B site
       working-directory: ${{ env.PRIMARY_MAVEN_MODULE }}
 
     - name: Deploy to Github pages
