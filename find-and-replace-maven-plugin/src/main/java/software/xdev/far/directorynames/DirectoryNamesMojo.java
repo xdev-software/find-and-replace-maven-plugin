@@ -22,6 +22,9 @@ import software.xdev.far.BaseMojo;
 import software.xdev.far.ExecData;
 
 
+/**
+ * Allows replacing directory names
+ */
 @Mojo(name = "directory-names", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class DirectoryNamesMojo extends BaseMojo<ExecData>
 {

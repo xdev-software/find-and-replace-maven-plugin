@@ -27,6 +27,9 @@ import software.xdev.far.BaseMojo;
 import software.xdev.far.ExecData;
 
 
+/**
+ * Allows replacing file contents
+ */
 @Mojo(name = "file-contents", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class FileContentsMojo extends BaseMojo<FileContentsExecData>
 {

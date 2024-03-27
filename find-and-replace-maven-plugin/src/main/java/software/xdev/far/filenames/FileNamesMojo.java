@@ -22,6 +22,9 @@ import software.xdev.far.BaseMojo;
 import software.xdev.far.ExecData;
 
 
+/**
+ * Allows replacing file names
+ */
 @Mojo(name = "file-names", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class FileNamesMojo extends BaseMojo<ExecData>
 {
