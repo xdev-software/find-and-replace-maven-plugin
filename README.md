@@ -13,6 +13,29 @@ A maven plugin for replacing content in files, filenames and directories.
 ## Usage
 A usage guide is available [in the plugin docs](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info).
 
+#### Example: Replace underscore with hyphen
+```xml
+<plugin>
+   <groupId>software.xdev</groupId>
+   <artifactId>find-and-replace-maven-plugin</artifactId>
+   <executions>
+      <execution>
+         <id>replace-underscore-with-hyphen</id>
+         <phase>process-sources</phase>
+         <goals>
+            <goal>file-contents</goal>
+         </goals>
+         <configuration>
+            <baseDir>testing/</baseDir>
+            <fileMask>test.txt</fileMask>
+            <findRegex>_</findRegex>
+            <replaceValue>-</replaceValue>
+         </configuration>
+      </execution>
+   </executions>
+</plugin>
+```
+
 ## Installation
 [Installation guide for the latest release](https://github.com/xdev-software/find-and-replace-maven-plugin/releases/latest#Installation)
 
