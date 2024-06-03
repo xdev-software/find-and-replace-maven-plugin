@@ -1,5 +1,5 @@
 [![Latest version](https://img.shields.io/maven-central/v/software.xdev/find-and-replace-maven-plugin?logo=apache%20maven)](https://mvnrepository.com/artifact/software.xdev/find-and-replace-maven-plugin)
-[![Build](https://img.shields.io/github/actions/workflow/status/xdev-software/find-and-replace-maven-plugin/checkBuild.yml?branch=develop)](https://github.com/xdev-software/find-and-replace-maven-plugin/actions/workflows/checkBuild.yml?query=branch%3Adevelop)
+[![Build](https://img.shields.io/github/actions/workflow/status/xdev-software/find-and-replace-maven-plugin/check-build.yml?branch=develop)](https://github.com/xdev-software/find-and-replace-maven-plugin/actions/workflows/check-build.yml?query=branch%3Adevelop)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xdev-software_find-and-replace-maven-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=xdev-software_find-and-replace-maven-plugin)
 [![Plugin docs](https://img.shields.io/badge/Plugin-docs-017cee?logo=apachemaven)](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info)
 
