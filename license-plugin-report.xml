@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1711451040685">
-    <module artifactId="find-and-replace-maven-plugin" groupId="software.xdev" version="1.0.0"/>
+<licensePluginReport goal="FORMAT" timestamp="1718694841942">
+    <module artifactId="find-and-replace-maven-plugin" groupId="software.xdev" version="1.0.1"/>
     <files>
         <file path="src/main/java/software/xdev/far/BaseMojo.java" result="NOOP"/>
         <file path="src/main/java/software/xdev/far/BaseProcessor.java" result="NOOP"/>
