@@ -11,9 +11,9 @@ A maven plugin for replacing content in files, filenames and directories.
 > This is a fork of [floverfelt/find-and-replace-maven-plugin](https://github.com/floverfelt/find-and-replace-maven-plugin) with some [additional functionality](CHANGELOG.md#100).
 
 ## Usage
-A usage guide is available [in the plugin docs](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info).
+A short usage guide is available [in the plugin docs](https://xdev-software.github.io/find-and-replace-maven-plugin/plugin-info).
 
-#### Example: Replace underscore with hyphen
+Example: Replace underscores with hyphen
 ```xml
 <plugin>
    <groupId>software.xdev</groupId>
@@ -35,6 +35,69 @@ A usage guide is available [in the plugin docs](https://xdev-software.github.io/
    </executions>
 </plugin>
 ```
+
+<details><summary>Replace contents of auto-generated files (OpenAPI generator)</summary>
+
+```xml
+<plugin>
+   <groupId>software.xdev</groupId>
+   <artifactId>find-and-replace-maven-plugin</artifactId>
+   <executions>
+      <execution>
+         <!-- Remove so that we don't need additional dependency -->
+         <id>remove-unused-import-com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</id>
+         <phase>process-sources</phase>
+         <goals>
+            <goal>file-contents</goal>
+         </goals>
+         <configuration>
+            <baseDir>${generatedDirRelative}/software/xdev/${componentName}/client/</baseDir>
+            <fileMask>ApiClient.java</fileMask>
+            <!-- @formatter:off DO NOT INTRODUCE LINE BREAK -->
+            <findRegex>^import com\.fasterxml\.jackson\.jaxrs\.json\.JacksonJsonProvider;(\r?\n)</findRegex>
+            <!-- @formatter:on -->
+            <replaceLineBased>false</replaceLineBased>
+         </configuration>
+      </execution>
+      <execution>
+         <!-- Changes with each generator version -->
+         <id>remove-generated-annotation</id>
+         <phase>process-sources</phase>
+         <goals>
+            <goal>file-contents</goal>
+         </goals>
+         <configuration>
+            <baseDir>${generatedDirRelative}/software/xdev/${componentName}/</baseDir>
+            <recursive>true</recursive>
+            <fileMask>.java</fileMask>
+            <findRegex>^@jakarta\.annotation\.Generated.*(\r?\n)</findRegex>
+            <replaceAll>false</replaceAll>
+            <replaceLineBased>false</replaceLineBased>
+         </configuration>
+      </execution>
+      <execution>
+         <!-- Requiring Java serialization indicates a serious misuse of the API -->
+         <id>remove-serialVersionUID</id>
+         <phase>process-sources</phase>
+         <goals>
+            <goal>file-contents</goal>
+         </goals>
+         <configuration>
+            <baseDir>${generatedDirRelative}/software/xdev/${componentName}/</baseDir>
+            <recursive>true</recursive>
+            <fileMask>.java</fileMask>
+            <findRegex>^.*serialVersionUID.*(\r?\n)(\s*\r?\n)?</findRegex>
+            <replaceAll>false</replaceAll>
+            <replaceLineBased>false</replaceLineBased>
+         </configuration>
+      </execution>
+   </executions>
+</plugin>
+```
+
+[Source](https://github.com/xdev-software/openapi-client-maven-template/blob/4bb8941fbf806efac190986494c31bb4edf5c4f9/template-placeholder/pom.xml#L414-L468)
+
+</details>
 
 ## Installation
 [Installation guide for the latest release](https://github.com/xdev-software/find-and-replace-maven-plugin/releases/latest#Installation)
