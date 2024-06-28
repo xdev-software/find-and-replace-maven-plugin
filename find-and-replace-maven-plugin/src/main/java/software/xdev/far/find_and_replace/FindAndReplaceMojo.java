@@ -27,7 +27,8 @@ import software.xdev.far.ExecData;
 
 
 /**
- * @deprecated Only exists for compatibility reasons
+ * @deprecated Only exists for compatibility reasons.
+ * Use the other goals instead
  */
 @Deprecated
 @Mojo(name = "find-and-replace", defaultPhase = LifecyclePhase.NONE, threadSafe = true)

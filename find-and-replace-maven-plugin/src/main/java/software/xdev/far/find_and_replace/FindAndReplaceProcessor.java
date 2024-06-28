@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 
 import software.xdev.far.BaseProcessor;
 
-
+// CPD-OFF Deprecated - Similar code is inside newer FileContentsProcessor
 /**
  * @deprecated Only exists for compatibility reasons
  */
