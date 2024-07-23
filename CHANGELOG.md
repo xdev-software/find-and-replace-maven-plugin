@@ -1,3 +1,8 @@
+## 1.0.2
+* Fix ``baseDir`` detection not working in multi module project
+* Improved logging
+* Updated various dependencies
+
 ## 1.0.1
 * Updated docs
 * Updated various dependencies
