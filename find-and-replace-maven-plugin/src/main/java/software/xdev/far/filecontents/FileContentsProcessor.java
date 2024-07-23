@@ -57,6 +57,7 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 					throw new IOException(
 						"Failed to rename temp file at: " + tempFile + " to " + file.getPath());
 				}
+				this.execData.getLogger().info("Replaced contents inside " + file);
 			}
 		}
 		catch(final IOException e)
