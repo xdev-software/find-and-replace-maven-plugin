@@ -44,54 +44,9 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 	{
 		try
 		{
-			Path tempFile = null;
-			
-			if(this.execData.isReplaceLineBased())
-			{
-				tempFile = this.createTempFile(file);
-				try(final FileInputStream fis = new FileInputStream(file);
-					final InputStreamReader isr = new InputStreamReader(fis, this.execData.getCharset());
-					final BufferedReader fileReader = new BufferedReader(isr))
-				{
-					try(final FileOutputStream fos = new FileOutputStream(tempFile.toFile());
-						final OutputStreamWriter osr = new OutputStreamWriter(fos, this.execData.getCharset());
-						final BufferedWriter fileWriter = new BufferedWriter(osr))
-					{
-						boolean alreadyReplaced = false;
-						for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
-						{
-							String lineToWrite = line;
-							final Matcher matcher = this.execData.getFindRegex().matcher(line);
-							if(matcher.find())
-							{
-								if(this.execData.isReplaceAll())
-								{
-									lineToWrite = matcher.replaceAll(this.execData.getReplaceValue());
-								}
-								else if(!alreadyReplaced)
-								{
-									lineToWrite = matcher.replaceFirst(this.execData.getReplaceValue());
-									alreadyReplaced = true;
-								}
-							}
-							fileWriter.write(lineToWrite + System.lineSeparator());
-						}
-					}
-				}
-			}
-			else
-			{
-				final String contents = Files.readString(file.toPath(), this.execData.getCharset());
-				final Matcher matcher = this.execData.getFindRegex().matcher(contents);
-				if(matcher.find())
-				{
-					tempFile = this.createTempFile(file);
-					
-					Files.writeString(tempFile, this.execData.isReplaceAll()
-						? matcher.replaceAll(this.execData.getReplaceValue())
-						: matcher.replaceFirst(this.execData.getReplaceValue()));
-				}
-			}
+			final Path tempFile = this.execData.isReplaceLineBased()
+				? this.replaceLineBased(file)
+				: this.replace(file);
 			
 			if(tempFile != null)
 			{
@@ -102,12 +57,65 @@ public class FileContentsProcessor extends BaseProcessor<FileContentsExecData>
 					throw new IOException(
 						"Failed to rename temp file at: " + tempFile + " to " + file.getPath());
 				}
+				this.execData.getLogger().info("Replaced contents inside " + file);
 			}
 		}
 		catch(final IOException e)
 		{
 			throw new UncheckedIOException(e);
 		}
+	}
+	
+	private Path replaceLineBased(final File file) throws IOException
+	{
+		final Path tempFile;
+		tempFile = this.createTempFile(file);
+		try(final FileInputStream fis = new FileInputStream(file);
+			final InputStreamReader isr = new InputStreamReader(fis, this.execData.getCharset());
+			final BufferedReader fileReader = new BufferedReader(isr))
+		{
+			try(final FileOutputStream fos = new FileOutputStream(tempFile.toFile());
+				final OutputStreamWriter osr = new OutputStreamWriter(fos, this.execData.getCharset());
+				final BufferedWriter fileWriter = new BufferedWriter(osr))
+			{
+				boolean alreadyReplaced = false;
+				for(String line = fileReader.readLine(); line != null; line = fileReader.readLine())
+				{
+					String lineToWrite = line;
+					final Matcher matcher = this.execData.getFindRegex().matcher(line);
+					if(matcher.find())
+					{
+						if(this.execData.isReplaceAll())
+						{
+							lineToWrite = matcher.replaceAll(this.execData.getReplaceValue());
+						}
+						else if(!alreadyReplaced)
+						{
+							lineToWrite = matcher.replaceFirst(this.execData.getReplaceValue());
+							alreadyReplaced = true;
+						}
+					}
+					fileWriter.write(lineToWrite + System.lineSeparator());
+				}
+			}
+		}
+		return tempFile;
+	}
+	
+	private Path replace(final File file) throws IOException
+	{
+		final String contents = Files.readString(file.toPath(), this.execData.getCharset());
+		final Matcher matcher = this.execData.getFindRegex().matcher(contents);
+		Path tempFile = null;
+		if(matcher.find())
+		{
+			tempFile = this.createTempFile(file);
+			
+			Files.writeString(tempFile, this.execData.isReplaceAll()
+				? matcher.replaceAll(this.execData.getReplaceValue())
+				: matcher.replaceFirst(this.execData.getReplaceValue()));
+		}
+		return tempFile;
 	}
 	
 	protected Path createTempFile(final File original) throws IOException

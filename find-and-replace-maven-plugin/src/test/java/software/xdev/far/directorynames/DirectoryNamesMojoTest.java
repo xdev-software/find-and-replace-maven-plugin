@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import software.xdev.far.BaseMojoTest;
 
-
+// CPD-OFF https://github.com/xdev-software/find-and-replace-maven-plugin/issues/5
 class DirectoryNamesMojoTest extends BaseMojoTest<DirectoryNamesMojo>
 {
 	public DirectoryNamesMojoTest()

@@ -15,6 +15,7 @@
  */
 package software.xdev.far;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
@@ -106,10 +107,11 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 	
 	protected ExecData createDefaultData()
 	{
+		final Path baseDirPath = Paths.get(this.baseDir);
 		return new ExecData(
 			this.getLog(),
-			this.project == null || this.baseDir.equals(this.project.getBasedir().getAbsolutePath())
-				? Paths.get(this.baseDir)
+			baseDirPath.isAbsolute()
+				? baseDirPath
 				: Paths.get(this.project.getBasedir().getAbsolutePath(), this.baseDir),
 			this.recursive,
 			this.compileFindRegex(),

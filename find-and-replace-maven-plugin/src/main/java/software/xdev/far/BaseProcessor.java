@@ -80,6 +80,11 @@ public abstract class BaseProcessor<D extends ExecData>
 	
 	protected void run()
 	{
+		this.execData.getLogger().info(String.format(
+			"Looking up files inside basedir='%s' with file masks [%s]",
+			this.execData.getBaseDirPath().toString(),
+			String.join(", ", this.execData.getFileMasks())));
+		
 		// Load in the files in the base dir
 		final File[] baseDirFiles = new File(this.execData.getBaseDirPath().toUri()).listFiles();
 		if(baseDirFiles == null)
