@@ -95,8 +95,6 @@ Example: Replace underscores with hyphen
 </plugin>
 ```
 
-[Source](https://github.com/xdev-software/openapi-client-maven-template/blob/4bb8941fbf806efac190986494c31bb4edf5c4f9/find-and-replace-maven-plugin/pom.xml#L414-L468)
-
 </details>
 
 ## Installation

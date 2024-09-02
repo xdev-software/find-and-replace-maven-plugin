@@ -19,9 +19,6 @@ on:
       - '.idea/**'
       - 'assets/**'
 
-env:
-  PRIMARY_MAVEN_MODULE: ${{ github.event.repository.name }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
