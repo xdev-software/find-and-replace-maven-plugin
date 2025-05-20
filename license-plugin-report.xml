@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="FORMAT" timestamp="1747734109941">
+    <module artifactId="find-and-replace-maven-plugin" groupId="software.xdev" version="1.0.4"/>
+    <files>
+        <file path="src/main/java/software/xdev/far/BaseMojo.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/BaseProcessor.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/ExecData.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/directorynames/DirectoryNamesMojo.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/directorynames/DirectoryNamesProcessor.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/filecontents/FileContentsExecData.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/filecontents/FileContentsMojo.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/filecontents/FileContentsProcessor.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/filenames/FileNamesMojo.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/filenames/FileNamesProcessor.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/find_and_replace/FindAndReplaceExecData.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/find_and_replace/FindAndReplaceMojo.java" result="NOOP"/>
+        <file path="src/main/java/software/xdev/far/find_and_replace/FindAndReplaceProcessor.java" result="NOOP"/>
+        <file path="src/test/java/software/xdev/far/BaseMojoTest.java" result="NOOP"/>
+        <file path="src/test/java/software/xdev/far/directorynames/DirectoryNamesMojoTest.java" result="NOOP"/>
+        <file path="src/test/java/software/xdev/far/filecontents/FileContentsMojoTest.java" result="NOOP"/>
+        <file path="src/test/java/software/xdev/far/filenames/FileNamesMojoTest.java" result="NOOP"/>
+    </files>
+</licensePluginReport>
