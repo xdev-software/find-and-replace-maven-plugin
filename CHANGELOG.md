@@ -1,16 +1,20 @@
-## 1.0.3
+# 1.0.4
+* Migrated deployment to _Sonatype Maven Central Portal_ [#155](https://github.com/xdev-software/standard-maven-template/issues/155)
 * Updated dependencies
 
-## 1.0.2
+# 1.0.3
+* Updated dependencies
+
+# 1.0.2
 * Fix ``baseDir`` detection not working in multi module project
 * Improved logging
 * Updated various dependencies
 
-## 1.0.1
+# 1.0.1
 * Updated docs
 * Updated various dependencies
 
-## 1.0.0
+# 1.0.0
 <i>Initial release</i>
 * Forked from [floverfelt/find-and-replace-maven-plugin](https://github.com/floverfelt/find-and-replace-maven-plugin)
 * Broken down into multiple goals #6
