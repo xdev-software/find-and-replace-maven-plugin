@@ -126,6 +126,7 @@ public abstract class BaseMojo<D extends ExecData> extends AbstractMojo
 			this.replaceAll);
 	}
 	
+	@SuppressWarnings("PMD.AvoidRecompilingPatterns") // This is only done once
 	protected Pattern compileFindRegex()
 	{
 		return Pattern.compile(this.findRegex);
