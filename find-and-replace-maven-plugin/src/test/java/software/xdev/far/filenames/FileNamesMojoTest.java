@@ -30,7 +30,7 @@ import software.xdev.far.BaseMojoTest;
 // CPD-OFF https://github.com/xdev-software/find-and-replace-maven-plugin/issues/5
 class FileNamesMojoTest extends BaseMojoTest<FileNamesMojo>
 {
-	public FileNamesMojoTest()
+	FileNamesMojoTest()
 	{
 		super(FileNamesMojo::new);
 	}
