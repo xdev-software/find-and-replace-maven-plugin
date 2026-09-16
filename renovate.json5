@@ -14,7 +14,7 @@
     },
     {
       "description": "Ignore project internal dependencies",
-      "packagePattern": "^software.xdev:template-placeholder",
+      "packagePattern": "^software.xdev:find-and-replace-maven-plugin",
       "datasources": [
         "maven"
       ],
